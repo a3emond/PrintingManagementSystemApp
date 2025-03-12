@@ -1,12 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PrintingManagementSystem.Models;
+using System;
 
 namespace PrintingManagementSystem.Data
 {
-    class JobQueue
+    public class JobQueue : PriorityCircularQueue<PrintJob>
     {
+        public JobQueue(int capacity) : base(capacity) { }
+
+        public void AddJob(PrintJob job)
+        {
+            Console.WriteLine($"[JobQueue] New job added: {job.DocumentName}, Priority: {job.Priority}");
+            Enqueue(job);
+        }
+
+        public PrintJob GetNextJob()
+        {
+            if (IsEmpty)
+            {
+                Console.WriteLine("[JobQueue] No jobs available.");
+                return null;
+            }
+            return Dequeue();
+        }
     }
 }

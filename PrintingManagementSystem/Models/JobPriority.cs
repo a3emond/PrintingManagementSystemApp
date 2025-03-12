@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PrintingManagementSystem.Models
+﻿namespace PrintingManagementSystem.Models
 {
-    class JobPriority
+    public enum JobPriority
     {
+        Urgent = 3, // Highest priority, processed first
+        Standard = 2, // Default priority
+        Low = 1 // Lowest priority, may be delayed or dropped in overflow
     }
 }
+

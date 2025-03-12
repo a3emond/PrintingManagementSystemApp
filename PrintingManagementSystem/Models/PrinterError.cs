@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PrintingManagementSystem.Models
+﻿namespace PrintingManagementSystem.Models
 {
-    class PrinterError
+    public enum PrinterError
     {
+        None,             // No error
+        OutOfPaper,       // Needs more paper
+        PaperStuck,       // Paper jam
+        NetworkError,     // Lost connection
+        CorruptedFile,    // Cannot read job file
+        OutOfInk          // Ink or toner depleted
     }
+
 }

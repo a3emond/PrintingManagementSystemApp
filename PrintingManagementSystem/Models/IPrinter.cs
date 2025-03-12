@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PrintingManagementSystem.Data;
 
 namespace PrintingManagementSystem.Models
 {
     public interface IPrinter
     {
         string Name { get; }
-        bool IsAvailable { get; }
         PrinterStatus Status { get; set; }
-        Queue<PrintJob> JobQueue { get; }
+        PrinterQueue JobQueue { get; }
         void AssignJob(PrintJob job);
         void ProcessJob();
+        void HandleError(PrinterError error);
     }
 }

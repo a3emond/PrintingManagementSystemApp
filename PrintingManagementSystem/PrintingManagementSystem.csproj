@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\ErrorManager.cs" />
+    <Compile Include="Core\PrinterErrorManager.cs" />
     <Compile Include="Core\JobSimulator.cs" />
     <Compile Include="Core\PrintManager.cs" />
     <Compile Include="Data\JobQueue.cs" />
@@ -57,9 +57,13 @@
     <Compile Include="Models\IPrinter.cs" />
     <Compile Include="Models\JobPriority.cs" />
     <Compile Include="Models\LaserPrinter.cs.cs" />
-    <Compile Include="Models\Printer.cs.cs" />
-    <Compile Include="UI\CanvasControl.cs" />
-    <Compile Include="UI\LogPanel.cs" />
+    <Compile Include="Models\Printer.cs" />
+    <Compile Include="UI\CanvasControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\LogPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -76,10 +80,9 @@
     <Compile Include="Services\PrintJobDispatcher.cs" />
     <Compile Include="Simulation\JobGenerationService.cs" />
     <Compile Include="Simulation\SimulationControl.cs.cs" />
-    <Compile Include="UI\PrinterInfoPanel.cs" />
-    <Compile Include="UI\StatusPanel.cs" />
-    <Compile Include="Utils\Logger.cs" />
-    <Compile Include="Utils\Randomizer.cs" />
+    <Compile Include="UI\PrinterInfoPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Utils\TimerService.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

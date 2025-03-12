@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PrintingManagementSystem.Models
+﻿namespace PrintingManagementSystem.Models
 {
-    class PrinterStatus
+    public enum PrinterStatus
     {
+        Ready,   // (Green) Printer is idle and can take new jobs
+        Busy,    // (Yellow) Printer is currently processing a job
+        Error    // (Red) Printer has encountered an issue
     }
 }

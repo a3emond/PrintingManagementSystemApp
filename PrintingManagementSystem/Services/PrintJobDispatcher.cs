@@ -3,6 +3,7 @@ using PrintingManagementSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PrintingManagementSystem.Services
 {
@@ -17,7 +18,7 @@ namespace PrintingManagementSystem.Services
             _logManager = logManager;
         }
 
-        public void DispatchJob(PrintJob job)
+        public async Task DispatchJobAsync(PrintJob job)
         {
             var suitablePrinters = _printers
                 .Where(p => p.Status == PrinterStatus.Ready)
@@ -27,13 +28,12 @@ namespace PrintingManagementSystem.Services
             if (suitablePrinters.Any())
             {
                 var selectedPrinter = suitablePrinters.First();
-                selectedPrinter.AssignJob(job);
-                _logManager.LogJob(job, selectedPrinter.Name, TimeSpan.Zero);
-                Console.WriteLine($"[PrintJobDispatcher] Assigned {job.DocumentName} to {selectedPrinter.Name}");
+                await selectedPrinter.AssignJobAsync(job);
+                _logManager.LogJobAssignment(selectedPrinter.Name, job);
             }
             else
             {
-                Console.WriteLine($"[PrintJobDispatcher] No available printers for {job.DocumentName}");
+                _logManager.LogMessage($"[PrintJobDispatcher] No available printers for {job.DocumentName}");
             }
         }
     }

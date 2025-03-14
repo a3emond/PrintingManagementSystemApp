@@ -3,6 +3,8 @@ using PrintingManagementSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PrintingManagementSystem.Core
 {
@@ -30,14 +32,14 @@ namespace PrintingManagementSystem.Core
             _logManager.LogPrinterRegistration(printer.Name);
         }
 
-        public void AddPrintJob(PrintJob job)
+        public async Task AddPrintJobAsync(PrintJob job)
         {
             _logManager.LogJobAdded(job);
             _jobQueue.AddJob(job);
-            DispatchJobs();
+            await DispatchJobsAsync();
         }
 
-        private void DispatchJobs()
+        private async Task DispatchJobsAsync()
         {
             while (!_jobQueue.IsEmpty)
             {
@@ -49,12 +51,15 @@ namespace PrintingManagementSystem.Core
                 if (availablePrinter != null)
                 {
                     PrintJob job = _jobQueue.GetNextJob();
-                    availablePrinter.AssignJob(job);
+                    availablePrinter.AssignJobAsync(job);
 
                     _logManager.LogJobAssignment(availablePrinter.Name, job);
 
                     // Trigger JobAssigned event
                     JobAssigned?.Invoke(this, new PrintJobEventArgs(job, availablePrinter.Name));
+
+                    // Simulate slight delay before assigning the next job
+                    await Task.Delay(100, CancellationToken.None);
                 }
                 else
                 {
@@ -63,20 +68,25 @@ namespace PrintingManagementSystem.Core
                 }
             }
         }
-        public void ProcessAllPrinters()
+
+        public async Task ProcessAllPrintersAsync()
         {
+            List<Task> processingTasks = new List<Task>();
+
             foreach (var printer in _printers)
             {
                 if (printer.Status == PrinterStatus.Ready && !printer.PrinterQueue.IsEmpty)
                 {
-                    printer.ProcessJob();
+                    processingTasks.Add(Task.Run(() => printer.ProcessJobAsync()));
                 }
             }
-            DispatchJobs(); // Attempt to assign more jobs if printers become available
+
+            await Task.WhenAll(processingTasks);
+
+            // Attempt to assign more jobs if printers become available
+            await DispatchJobsAsync();
         }
-
     }
-
 
     // Define the event args class
     public class PrintJobEventArgs : EventArgs
@@ -90,5 +100,4 @@ namespace PrintingManagementSystem.Core
             PrinterName = printerName;
         }
     }
-
 }

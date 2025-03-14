@@ -36,6 +36,14 @@ namespace PrintingManagementSystem.Data
             }
         }
 
+        // Log message
+        public void LogMessage(string message)
+        {
+            string logEntry = $"[{DateTime.Now}] {message}";
+            _jobLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
         // Log registration of printer
         public void LogPrinterRegistration(string printerName)
         {

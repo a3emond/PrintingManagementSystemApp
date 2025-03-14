@@ -3,6 +3,8 @@ using PrintingManagementSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PrintingManagementSystem.Services
 {
@@ -17,17 +19,23 @@ namespace PrintingManagementSystem.Services
             _logManager = logManager;
         }
 
-        public void RecoverPrinters()
+        public async Task RecoverPrintersAsync(CancellationToken token)
         {
             foreach (var printer in _printers.Where(p => p.Status == PrinterStatus.Error))
             {
                 _logManager.LogRecoveryAttempt(printer.Name);
-                // Simulate user intervention
-                // wait for 5 seconds 
-                System.Threading.Thread.Sleep(5000);
-                // Log recovery success
-                _logManager.LogRecovery(printer.Name);
-                printer.Status = PrinterStatus.Ready; // Set printer status to ready
+
+                try
+                {
+                    await Task.Delay(5000, token); // Simulate user intervention
+
+                    _logManager.LogRecovery(printer.Name);
+                    printer.Status = PrinterStatus.Ready; // Set printer status to ready
+                }
+                catch (TaskCanceledException)
+                {
+                    _logManager.LogMessage($"[ErrorRecoveryService] Recovery process cancelled for {printer.Name}");
+                }
             }
         }
     }

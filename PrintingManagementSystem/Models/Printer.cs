@@ -1,12 +1,11 @@
 ﻿using PrintingManagementSystem.Core;
 using PrintingManagementSystem.Data;
 using PrintingManagementSystem.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace PrintingManagementSystem.Models
 {
-    using System;
-    using System.Threading;
-
     public abstract class Printer : IPrinter
     {
         public string Name { get; }
@@ -24,17 +23,15 @@ namespace PrintingManagementSystem.Models
             _logManager = logManager;
         }
 
-        public void AssignJob(PrintJob job)
+        public async Task AssignJobAsync(PrintJob job)
         {
             PrinterQueue.AssignJob(job);
-            _logManager.LogJob(job, Name, TimeSpan.Zero);
         }
 
-        public virtual void ProcessJob()
+        public virtual async Task ProcessJobAsync()
         {
             if (PrinterQueue.IsEmpty)
             {
-                _logManager.LogError(Name, PrinterError.None);
                 return;
             }
 
@@ -42,11 +39,11 @@ namespace PrintingManagementSystem.Models
             PrintJob job = PrinterQueue.ProcessNextJob(); // Get next job from queue (Dequeue)
             _logManager.LogStartPrinting(Name); // Log start of printing job
             TimeSpan processingTime = TimeSpan.FromMilliseconds(job.EstimatedTime);
-            Thread.Sleep(job.EstimatedTime); // Simulate print time
+            await Task.Delay(job.EstimatedTime); // Simulate print time
 
             if (_random.Next(1, 10) <= 2) // 20% chance of error occurring
             {
-                HandleError(PrinterErrorManager.GetRandomError());
+                await HandleErrorAsync(PrinterErrorManager.GetRandomError());
                 Status = PrinterStatus.Error;
             }
             else
@@ -56,12 +53,12 @@ namespace PrintingManagementSystem.Models
             }
         }
 
-        public virtual void HandleError(PrinterError error)
+        public virtual async Task HandleErrorAsync(PrinterError error)
         {
             Status = PrinterStatus.Error;
             _logManager.LogError(Name, error);
+            await Task.Delay(5000); // Simulate recovery time
+            Status = PrinterStatus.Ready;
         }
     }
-
-
 }

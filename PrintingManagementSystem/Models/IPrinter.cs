@@ -1,4 +1,5 @@
 ﻿using PrintingManagementSystem.Data;
+using System.Threading.Tasks;
 
 namespace PrintingManagementSystem.Models
 {
@@ -7,8 +8,9 @@ namespace PrintingManagementSystem.Models
         string Name { get; }
         PrinterStatus Status { get; set; }
         PrinterQueue PrinterQueue { get; }
-        void AssignJob(PrintJob job);
-        void ProcessJob();
-        void HandleError(PrinterError error);
+
+        Task AssignJobAsync(PrintJob job);
+        Task ProcessJobAsync();
+        Task HandleErrorAsync(PrinterError error);
     }
 }

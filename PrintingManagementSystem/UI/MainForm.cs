@@ -12,7 +12,6 @@ namespace PrintingManagementSystem.UI
     public partial class MainForm : Form
     {
         private readonly PrintManager _printManager;
-        private readonly JobSimulator _jobSimulator;
         private readonly SimulationControl _simulationControl;
         private readonly LogManager _logManager;
         private CanvasControl _canvas;
@@ -23,8 +22,7 @@ namespace PrintingManagementSystem.UI
 
             _logManager = new LogManager();
             _printManager = new PrintManager(jobQueueCapacity: 10, _logManager);
-            _jobSimulator = new JobSimulator(_printManager);
-            _simulationControl = new SimulationControl(_jobSimulator, _printManager,
+            _simulationControl = new SimulationControl(_printManager,
                 new PrinterStatusService(_printManager.GetPrinters()),
                 new ErrorRecoveryService(_printManager.GetPrinters(), _logManager));
 

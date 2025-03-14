@@ -20,7 +20,7 @@ namespace PrintingManagementSystem.Core
 
         public void StartSimulation()
         {
-            if (_isRunning) return;
+            if (_isRunning) return; // Simulation already running
             _isRunning = true;
 
             _simulationThread = new Thread(() =>
@@ -54,7 +54,7 @@ namespace PrintingManagementSystem.Core
             );
 
             Console.WriteLine($"[JobSimulator] Generated job: {job}");
-            _printManager.AddPrintJob(job);
+            _printManager.AddPrintJob(job); // Add job to the print manager
         }
     }
 

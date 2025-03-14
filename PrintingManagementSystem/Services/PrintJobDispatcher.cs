@@ -21,7 +21,7 @@ namespace PrintingManagementSystem.Services
         {
             var suitablePrinters = _printers
                 .Where(p => p.Status == PrinterStatus.Ready)
-                .OrderBy(p => p.JobQueue.IsEmpty ? 0 : 1) // Prioritize idle printers
+                .OrderBy(p => p.PrinterQueue.IsEmpty ? 0 : 1) // Prioritize idle printers
                 .ToList();
 
             if (suitablePrinters.Any())

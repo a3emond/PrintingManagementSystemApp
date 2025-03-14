@@ -14,12 +14,12 @@ namespace PrintingManagementSystem.UI
         public LogPanel(LogManager logManager)
         {
             _logManager = logManager;
-            this.Width = 780;
-            this.Height = 100;
+            this.Width = 700;
+            this.Height = 300;
             this.BackColor = Color.White;
             this.BorderStyle = BorderStyle.FixedSingle;
 
-            _logList = new ListBox { Left = 5, Top = 5, Width = 770, Height = 90 };
+            _logList = new ListBox { Left = 5, Top = 5, Width = 690, Height = 300 };
             this.Controls.Add(_logList);
 
             _updateTimer = new Timer { Interval = 2000 };

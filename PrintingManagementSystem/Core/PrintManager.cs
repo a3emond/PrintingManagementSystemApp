@@ -12,6 +12,9 @@ namespace PrintingManagementSystem.Core
         private readonly JobQueue _jobQueue;
         private readonly LogManager _logManager;
 
+        // Event for job assignment
+        public event EventHandler<PrintJobEventArgs> JobAssigned;
+
         public PrintManager(int jobQueueCapacity, LogManager logManager)
         {
             _printers = new List<IPrinter>();
@@ -24,14 +27,14 @@ namespace PrintingManagementSystem.Core
         public void RegisterPrinter(IPrinter printer)
         {
             _printers.Add(printer);
-            Console.WriteLine($"[PrintManager] Registered printer: {printer.Name}");
+            _logManager.LogPrinterRegistration(printer.Name);
         }
 
         public void AddPrintJob(PrintJob job)
         {
-            Console.WriteLine($"[PrintManager] Job added: {job.DocumentName} (Priority: {job.Priority})");
+            _logManager.LogJobAdded(job);
             _jobQueue.AddJob(job);
-            DispatchJobs(); // Try assigning the job immediately
+            DispatchJobs();
         }
 
         private void DispatchJobs()
@@ -40,47 +43,52 @@ namespace PrintingManagementSystem.Core
             {
                 var availablePrinter = _printers
                     .Where(p => p.Status == PrinterStatus.Ready)
-                    .OrderBy(p => p.JobQueue.IsEmpty ? 0 : 1) // Prioritize idle printers
+                    .OrderBy(p => p.PrinterQueue.IsEmpty ? 0 : 1) // Prioritize idle printers
                     .FirstOrDefault();
 
                 if (availablePrinter != null)
                 {
                     PrintJob job = _jobQueue.GetNextJob();
                     availablePrinter.AssignJob(job);
-                    Console.WriteLine($"[PrintManager] Assigned {job.DocumentName} to {availablePrinter.Name}");
+
+                    _logManager.LogJobAssignment(availablePrinter.Name, job);
+
+                    // Trigger JobAssigned event
+                    JobAssigned?.Invoke(this, new PrintJobEventArgs(job, availablePrinter.Name));
                 }
                 else
                 {
-                    Console.WriteLine("[PrintManager] No available printers, job remains in queue.");
+                    _logManager.LogNoAvailablePrinters();
                     break;
                 }
             }
         }
-
         public void ProcessAllPrinters()
         {
             foreach (var printer in _printers)
             {
-                if (printer.Status == PrinterStatus.Ready && !printer.JobQueue.IsEmpty)
+                if (printer.Status == PrinterStatus.Ready && !printer.PrinterQueue.IsEmpty)
                 {
                     printer.ProcessJob();
                 }
             }
-            DispatchJobs(); // Re-attempt dispatching in case printers become free
+            DispatchJobs(); // Attempt to assign more jobs if printers become available
         }
 
-        public void HandlePrinterErrors()
+    }
+
+
+    // Define the event args class
+    public class PrintJobEventArgs : EventArgs
+    {
+        public PrintJob Job { get; }
+        public string PrinterName { get; }
+
+        public PrintJobEventArgs(PrintJob job, string printerName)
         {
-            foreach (var printer in _printers.Where(p => p.Status == PrinterStatus.Error))
-            {
-                Console.WriteLine($"[PrintManager] Attempting to recover {printer.Name}");
-
-                // Simulate user intervention or auto-recovery
-                printer.Status = PrinterStatus.Ready;
-                _logManager.LogError(printer.Name, PrinterError.None);
-
-                Console.WriteLine($"[PrintManager] {printer.Name} is back online.");
-            }
+            Job = job;
+            PrinterName = printerName;
         }
     }
+
 }

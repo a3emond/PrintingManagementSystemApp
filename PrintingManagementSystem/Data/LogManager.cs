@@ -36,6 +36,29 @@ namespace PrintingManagementSystem.Data
             }
         }
 
+        // Log registration of printer
+        public void LogPrinterRegistration(string printerName)
+        {
+            string logEntry = $"[{DateTime.Now}] Printer Registered: {printerName}";
+            _jobLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
+        // Log job added 
+        public void LogJobAdded(PrintJob job)
+        {
+            string logEntry = $"[{DateTime.Now}] Job added: {job.DocumentName} (Priority: {job.Priority})";
+            _jobLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+        // Log Start Printing
+        public void LogStartPrinting(string printerName)
+        {
+            string logEntry = $"[{DateTime.Now}] [Printer: {printerName}] Printing Started";
+            _jobLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
         public void LogJob(PrintJob job, string printerName, TimeSpan processingTime)
         {
             string logEntry = $"[{DateTime.Now}] [Printer: {printerName}] Completed Job: {job.DocumentName} | Pages: {job.Pages} | Processing Time: {processingTime.TotalSeconds} sec";
@@ -47,6 +70,38 @@ namespace PrintingManagementSystem.Data
         {
             string logEntry = $"[{DateTime.Now}] [Printer: {printerName}] ERROR: {errorType}";
             _errorLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
+        // Log Recovery attempt
+        public void LogRecoveryAttempt(string printerName)
+        {
+            string logEntry = $"[{DateTime.Now}] [Printer: {printerName}] Attempting Recovery...";
+            _errorLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
+        // Log Recovered printer
+        public void LogRecovery(string printerName)
+        {
+            string logEntry = $"[{DateTime.Now}] [Printer: {printerName}] Recovery Successful";
+            _errorLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
+        // Log Job Assignment
+        public void LogJobAssignment(string printerName, PrintJob job)
+        {
+            string logEntry = $"[{DateTime.Now}] [Printer: {printerName}] Assigned Job: {job.DocumentName} | Pages: {job.Pages}";
+            _jobLogs.Add(logEntry);
+            Console.WriteLine(logEntry);
+        }
+
+        // Log no available printers
+        public void LogNoAvailablePrinters()
+        {
+            string logEntry = $"[{DateTime.Now}] [PrintManager] No available printers, job remains in queue.";
+            _jobLogs.Add(logEntry);
             Console.WriteLine(logEntry);
         }
 

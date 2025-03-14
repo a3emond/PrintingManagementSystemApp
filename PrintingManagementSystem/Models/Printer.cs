@@ -1,5 +1,6 @@
 ﻿using PrintingManagementSystem.Core;
 using PrintingManagementSystem.Data;
+using PrintingManagementSystem.Services;
 
 namespace PrintingManagementSystem.Models
 {
@@ -10,7 +11,7 @@ namespace PrintingManagementSystem.Models
     {
         public string Name { get; }
         public PrinterStatus Status { get; set; }
-        public PrinterQueue JobQueue { get; }
+        public PrinterQueue PrinterQueue { get; }
         private readonly Random _random;
         protected readonly LogManager _logManager;
 
@@ -18,34 +19,35 @@ namespace PrintingManagementSystem.Models
         {
             Name = name;
             Status = PrinterStatus.Ready;
-            JobQueue = new PrinterQueue(queueCapacity);
+            PrinterQueue = new PrinterQueue(queueCapacity);
             _random = new Random();
             _logManager = logManager;
         }
 
         public void AssignJob(PrintJob job)
         {
-            JobQueue.AssignJob(job);
+            PrinterQueue.AssignJob(job);
             _logManager.LogJob(job, Name, TimeSpan.Zero);
         }
 
         public virtual void ProcessJob()
         {
-            if (JobQueue.IsEmpty)
+            if (PrinterQueue.IsEmpty)
             {
                 _logManager.LogError(Name, PrinterError.None);
                 return;
             }
 
-            Status = PrinterStatus.Busy;
-            PrintJob job = JobQueue.ProcessNextJob();
-
+            Status = PrinterStatus.Busy; // Set status to busy while processing job
+            PrintJob job = PrinterQueue.ProcessNextJob(); // Get next job from queue (Dequeue)
+            _logManager.LogStartPrinting(Name); // Log start of printing job
             TimeSpan processingTime = TimeSpan.FromMilliseconds(job.EstimatedTime);
             Thread.Sleep(job.EstimatedTime); // Simulate print time
 
             if (_random.Next(1, 10) <= 2) // 20% chance of error occurring
             {
                 HandleError(PrinterErrorManager.GetRandomError());
+                Status = PrinterStatus.Error;
             }
             else
             {

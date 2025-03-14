@@ -38,7 +38,7 @@ namespace PrintingManagementSystem.Models
 
         public override string ToString()
         {
-            return $"[{Priority}] {DocumentName} - {Pages} pages ({(IsColor ? "Color" : "B&W")})";
+            return $"[{Priority}] {DocumentName} - {Pages} pages ({(IsColor ? "Color" : "B&W")} - {EstimatedTime} seconds)";
         }
     }
 }

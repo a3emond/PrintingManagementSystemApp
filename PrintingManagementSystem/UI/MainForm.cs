@@ -15,7 +15,7 @@ namespace PrintingManagementSystem.UI
         private readonly JobSimulator _jobSimulator;
         private readonly SimulationControl _simulationControl;
         private readonly LogManager _logManager;
-        private readonly List<PrinterInfoPanel> _printerPanels;
+        private CanvasControl _canvas;
 
         public MainForm()
         {
@@ -28,17 +28,19 @@ namespace PrintingManagementSystem.UI
                 new PrinterStatusService(_printManager.GetPrinters()),
                 new ErrorRecoveryService(_printManager.GetPrinters(), _logManager));
 
-            _printerPanels = new List<PrinterInfoPanel>();
 
             SetupUI();
             RegisterPrinters();
+
+            // Subscribe to job assignment event
+            _printManager.JobAssigned += OnJobAssigned;
         }
 
         private void SetupUI()
         {
             this.Text = "Printing Management System";
-            this.Width = 900;
-            this.Height = 600;
+            this.Width = 760;
+            this.Height = 900;
             this.FormClosing += (sender, args) => _simulationControl.Stop();
 
             // Add Start/Stop Simulation Buttons
@@ -50,37 +52,39 @@ namespace PrintingManagementSystem.UI
             stopButton.Click += (sender, args) => _simulationControl.Stop();
             Controls.Add(stopButton);
 
-            // Add Canvas for animations
-            var canvas = new CanvasControl { Left = 300, Top = 20, Width = 500, Height = 400 };
-            Controls.Add(canvas);
+            // Initialize and add Canvas
+            _canvas = new CanvasControl { Left = 20, Top = 60, Width = 700, Height = 400 };
+            _canvas.BackColor = System.Drawing.Color.CornflowerBlue;
+            Controls.Add(_canvas);
 
-            // Add Printer Info Panels
-            var printerPanelContainer = new FlowLayoutPanel
-            {
-                Left = 20,
-                Top = 60,
-                Width = 250,
-                Height = 400,
-                AutoScroll = true
-            };
-            Controls.Add(printerPanelContainer);
-
-            foreach (var printer in _printManager.GetPrinters())
-            {
-                var panel = new PrinterInfoPanel(printer);
-                _printerPanels.Add(panel);
-                printerPanelContainer.Controls.Add(panel);
-            }
-
+            
             // Add Log Panel
-            var logPanel = new LogPanel(_logManager) { Left = 20, Top = 470, Width = 780, Height = 100 };
+            var logPanel = new LogPanel(_logManager) { Left = 20, Top = 470, Width = 700, Height = 300 };
             Controls.Add(logPanel);
         }
 
         private void RegisterPrinters()
         {
-            _printManager.RegisterPrinter(new LaserPrinter("Laser Printer 1", _logManager));
-            _printManager.RegisterPrinter(new InkjetPrinter("Inkjet Printer 1", _logManager));
+            var printers = new List<IPrinter>
+            {
+                new LaserPrinter("Laser Printer 1", _logManager),
+                new InkjetPrinter("Inkjet Printer 1", _logManager)
+            };
+
+            foreach (var printer in printers)
+            {
+                _printManager.RegisterPrinter(printer);
+            }
+
+            // Pass printers to canvas for rendering
+            _canvas.RegisterPrinters(_printManager.GetPrinters());
+            _canvas.Invalidate();
+        }
+
+        private void OnJobAssigned(object sender, PrintJobEventArgs e)
+        {
+            _canvas.AddJobAnimation(e.Job, e.PrinterName);
         }
     }
+
 }

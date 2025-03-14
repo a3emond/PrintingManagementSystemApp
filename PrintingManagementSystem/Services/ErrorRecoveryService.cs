@@ -21,13 +21,13 @@ namespace PrintingManagementSystem.Services
         {
             foreach (var printer in _printers.Where(p => p.Status == PrinterStatus.Error))
             {
-                Console.WriteLine($"[ErrorRecoveryService] Recovering {printer.Name}");
-
+                _logManager.LogRecoveryAttempt(printer.Name);
                 // Simulate user intervention
-                printer.Status = PrinterStatus.Ready;
-                _logManager.LogError(printer.Name, PrinterError.None);
-
-                Console.WriteLine($"[ErrorRecoveryService] {printer.Name} is back online.");
+                // wait for 5 seconds 
+                System.Threading.Thread.Sleep(5000);
+                // Log recovery success
+                _logManager.LogRecovery(printer.Name);
+                printer.Status = PrinterStatus.Ready; // Set printer status to ready
             }
         }
     }

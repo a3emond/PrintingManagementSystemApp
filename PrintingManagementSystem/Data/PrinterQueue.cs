@@ -7,13 +7,13 @@ namespace PrintingManagementSystem.Data
     {
         public PrinterQueue(int capacity) : base(capacity) { }
 
-        public void AssignJob(PrintJob job)
+        public void AssignJob(PrintJob job) // Enqueues a job to the printer queue
         {
             Console.WriteLine($"[PrinterQueue] Job assigned to printer queue: {job.DocumentName}");
             Enqueue(job);
         }
 
-        public PrintJob ProcessNextJob()
+        public PrintJob ProcessNextJob() // Dequeues the next job to process
         {
             if (IsEmpty)
             {

@@ -11,17 +11,15 @@ namespace PrintingManagementSystem.Models
 
         public override void ProcessJob()
         {
-            if (JobQueue.IsEmpty)
+            if (PrinterQueue.IsEmpty)
             {
                 _logManager.LogError(Name, PrinterError.None);
                 return;
             }
 
             Status = PrinterStatus.Busy;
-            PrintJob job = JobQueue.ProcessNextJob();
-
-            Console.WriteLine($"[Inkjet Printer: {Name}] Printing {job.DocumentName} ({job.Pages} pages)");
-
+            PrintJob job = PrinterQueue.ProcessNextJob();
+            _logManager.LogStartPrinting(Name);
             // Slower processing time (1.5 sec per page)
             TimeSpan processingTime = TimeSpan.FromMilliseconds(job.EstimatedTime * 1.5);
             System.Threading.Thread.Sleep((int)processingTime.TotalMilliseconds);

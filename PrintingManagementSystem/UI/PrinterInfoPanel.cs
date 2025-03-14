@@ -19,7 +19,7 @@ namespace PrintingManagementSystem.UI
             _printer = printer;
             this.Width = 250;
             this.Height = 80;
-            this.BackColor = Color.LightGray;
+            this.BackColor = Color.DarkSeaGreen;
             this.BorderStyle = BorderStyle.FixedSingle;
 
             _printerNameLabel = new Label { Text = _printer.Name, Left = 10, Top = 5, Width = 200, Font = new Font("Arial", 10, FontStyle.Bold) };
@@ -42,7 +42,7 @@ namespace PrintingManagementSystem.UI
         private void UpdatePanel()
         {
             _statusLabel.Text = $"Status: {_printer.Status}";
-            _queueSizeLabel.Text = $"Queue: {_printer.JobQueue.QueueSize} jobs";
+            _queueSizeLabel.Text = $"Queue: {_printer.PrinterQueue.QueueSize} jobs";
 
             switch (_printer.Status)
             {

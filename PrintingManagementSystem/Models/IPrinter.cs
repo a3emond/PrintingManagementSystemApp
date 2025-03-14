@@ -6,7 +6,7 @@ namespace PrintingManagementSystem.Models
     {
         string Name { get; }
         PrinterStatus Status { get; set; }
-        PrinterQueue JobQueue { get; }
+        PrinterQueue PrinterQueue { get; }
         void AssignJob(PrintJob job);
         void ProcessJob();
         void HandleError(PrinterError error);

@@ -39,19 +39,28 @@ namespace PrintingManagementSystem.UI
             var targetPrinter = _printers.Find(p => p.Name == printerName);
             if (targetPrinter != null)
             {
-                _movingJobs.Add(new MovingJob(job, new Point(20, 50), GetPrinterLocation(targetPrinter)));
+                int startY = _random.Next(50, this.Height - 50);
+                _movingJobs.Add(new MovingJob(job, new Point(50, startY), GetPrinterLocation(targetPrinter)));
             }
         }
 
         private void MoveJobs()
         {
-            foreach (var job in _movingJobs)
+            for (int i = _movingJobs.Count - 1; i >= 0; i--)
             {
-                job.Position = new Point(job.Position.X + 5, job.Position.Y);
-                if (job.Position.X >= job.Target.X)
+                var job = _movingJobs[i];
+
+                // Move job towards target in small steps
+                int step = 5;
+                int dx = Math.Sign(job.Target.X - job.Position.X) * Math.Min(step, Math.Abs(job.Target.X - job.Position.X));
+                int dy = Math.Sign(job.Target.Y - job.Position.Y) * Math.Min(step, Math.Abs(job.Target.Y - job.Position.Y));
+
+                job.Position = new Point(job.Position.X + dx, job.Position.Y + dy);
+
+                // If job reached the target, remove it
+                if (job.Position == job.Target)
                 {
-                    _movingJobs.Remove(job);
-                    break;
+                    _movingJobs.RemoveAt(i);
                 }
             }
             Invalidate();
@@ -75,6 +84,7 @@ namespace PrintingManagementSystem.UI
                 g.FillRectangle(Brushes.Blue, new Rectangle(job.Position, new Size(20, 20)));
                 g.DrawString(job.Job.DocumentName, DefaultFont, Brushes.White, job.Position);
             }
+
         }
 
         private void DrawPrinter(Graphics g, IPrinter printer, Point location)
@@ -96,9 +106,23 @@ namespace PrintingManagementSystem.UI
                     break;
             }
 
-            g.FillRectangle(statusBrush, new Rectangle(location, new Size(100, 50)));
-            g.DrawString(printer.Name, DefaultFont, Brushes.White, location);
+            // Printer Rectangle
+            Rectangle rect = new Rectangle(location, new Size(150, 70)); // Increased size
+
+            // Fill rectangle
+            g.FillRectangle(statusBrush, rect);
+
+            // Draw a black border around the printer for visibility
+            g.DrawRectangle(Pens.Black, rect);
+
+            // Draw printer name
+            using (Font font = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Bold))
+            {
+                g.DrawString(printer.Name, font, Brushes.Black, location.X + 10, location.Y + 20);
+            }
         }
+
+
 
         private Point GetPrinterLocation(IPrinter printer)
         {

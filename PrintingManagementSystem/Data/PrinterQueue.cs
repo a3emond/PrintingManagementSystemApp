@@ -9,8 +9,9 @@ namespace PrintingManagementSystem.Data
 
         public void AssignJob(PrintJob job) // Enqueues a job to the printer queue
         {
-            Console.WriteLine($"[PrinterQueue] Job assigned to printer queue: {job.DocumentName}");
-            Enqueue(job);
+            // check for null job
+            if (job != null) Enqueue(job);
+            else Console.WriteLine("[PrinterQueue] Job is null.");
         }
 
         public PrintJob ProcessNextJob() // Dequeues the next job to process

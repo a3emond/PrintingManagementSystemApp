@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PrintingManagementSystem.Data
@@ -10,9 +11,9 @@ namespace PrintingManagementSystem.Data
         private int _head;
         private int _tail;
         private int _size;
+        public int Count = 0;
 
         public int QueueSize => _size; // used in PrinterInfoPanel.cs
-
 
         public PriorityCircularQueue(int capacity)
         {
@@ -37,6 +38,7 @@ namespace PrintingManagementSystem.Data
             _buffer[_tail] = item;
             _tail = (_tail + 1) % _capacity;
             _size++;
+            Count++;
 
             // Sort queue by priority
             SortQueue();
@@ -49,10 +51,11 @@ namespace PrintingManagementSystem.Data
             T item = _buffer[_head];
             _head = (_head + 1) % _capacity;
             _size--;
+            Count--;
             return item;
         }
 
-        private void DropLowestPriorityJob() //TODO: Implement Notification for dropped job and log it
+        private void DropLowestPriorityJob()
         {
             // Find the lowest-priority job
             int minIndex = _head;
@@ -69,8 +72,7 @@ namespace PrintingManagementSystem.Data
             for (int i = minIndex; i != _tail; i = (i + 1) % _capacity)
             {
                 int next = (i + 1) % _capacity;
-                _buffer[i] = _buffer[next];
-            }
+                _buffer[i] = _buffer[next]; }
 
             _tail = (_tail - 1 + _capacity) % _capacity;
             _size--;
@@ -85,6 +87,16 @@ namespace PrintingManagementSystem.Data
             }
         }
 
+        public List<T> GetQueueState()
+        {
+            List<T> queueState = new List<T>();
+            for (int i = 0; i < _size; i++)
+            {
+                int index = (_head + i) % _capacity;
+                queueState.Add(_buffer[index]);
+            }
+            return queueState;
+        }
     }
 
 }

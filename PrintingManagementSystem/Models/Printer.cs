@@ -58,6 +58,7 @@ namespace PrintingManagementSystem.Models
             Status = PrinterStatus.Error;
             _logManager.LogError(Name, error);
             await Task.Delay(5000); // Simulate recovery time
+            _logManager.LogRecovery(Name);
             Status = PrinterStatus.Ready;
         }
     }

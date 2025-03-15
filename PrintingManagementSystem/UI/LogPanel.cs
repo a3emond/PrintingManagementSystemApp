@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 using PrintingManagementSystem.Data;
 
@@ -33,14 +34,10 @@ namespace PrintingManagementSystem.UI
         {
             _logList.Items.Clear();
 
-            foreach (var log in _logManager.GetJobLogs())
+            var jobLogs = _logManager.GetJobLogs().ToList();
+            foreach (var log in jobLogs)
             {
                 _logList.Items.Add(log);
-            }
-
-            foreach (var error in _logManager.GetErrorLogs())
-            {
-                _logList.Items.Add($"[ERROR] {error}");
             }
 
             if (_logList.Items.Count > 0)

@@ -36,11 +36,16 @@ namespace PrintingManagementSystem.Simulation
 
         public void Stop()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
-            Console.WriteLine("[SimulationControl] Simulation stopped.");
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Token.WaitHandle.WaitOne(); // Wait for tasks to complete
+                _cancellationTokenSource.Dispose();
+                _cancellationTokenSource = null;
+                Console.WriteLine("[SimulationControl] Simulation stopped.");
+            }
         }
+
 
         private async Task GenerateRandomJobs(CancellationToken token)
         {
@@ -59,7 +64,7 @@ namespace PrintingManagementSystem.Simulation
                     Console.WriteLine($"[SimulationControl] Generated job: {job}");
                     await _printManager.AddPrintJobAsync(job);
 
-                    await Task.Delay(_random.Next(3000, 7000), token); // Wait between job generation
+                    await Task.Delay(_random.Next(1000, 4000), token); // Wait between job generation
                 }
             }
             catch (TaskCanceledException)
@@ -81,7 +86,7 @@ namespace PrintingManagementSystem.Simulation
             {
                 while (!token.IsCancellationRequested)
                 {
-                    await _printManager.ProcessAllPrintersAsync();
+                    await _printManager.ProcessAllPrintersAsync(); // should it be called there?
                     await _errorService.RecoverPrintersAsync(token);
                     _statusService.UpdatePrinterStatus();
 

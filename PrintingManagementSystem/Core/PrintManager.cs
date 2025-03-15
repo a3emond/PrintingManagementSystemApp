@@ -36,30 +36,45 @@ namespace PrintingManagementSystem.Core
         {
             _logManager.LogJobAdded(job);
             _jobQueue.AddJob(job);
-            await DispatchJobsAsync();
+            // wait until 5 jobs are in the queue
+            if (_jobQueue.Count >= 5)
+                await DispatchJobsAsync();
         }
 
         private async Task DispatchJobsAsync()
         {
             while (!_jobQueue.IsEmpty)
             {
-                var availablePrinter = _printers
-                    .Where(p => p.Status == PrinterStatus.Ready)
+                var availablePrinters = _printers
+                    .Where(p => p.Status != PrinterStatus.Error) // Exclude printers with errors
                     .OrderBy(p => p.PrinterQueue.IsEmpty ? 0 : 1) // Prioritize idle printers
-                    .FirstOrDefault();
+                    .ToList();
 
-                if (availablePrinter != null)
+                if (availablePrinters.Any())
                 {
-                    PrintJob job = _jobQueue.GetNextJob();
-                    availablePrinter.AssignJobAsync(job);
+                    foreach (var printer in availablePrinters)
+                    {
+                        if (_jobQueue.IsEmpty)
+                            break;
 
-                    _logManager.LogJobAssignment(availablePrinter.Name, job);
+                        try
+                        {
+                            PrintJob job = _jobQueue.GetNextJob();
+                            await printer.AssignJobAsync(job);
 
-                    // Trigger JobAssigned event
-                    JobAssigned?.Invoke(this, new PrintJobEventArgs(job, availablePrinter.Name));
+                            _logManager.LogJobAssignment(printer.Name, job);
 
-                    // Simulate slight delay before assigning the next job
-                    await Task.Delay(100, CancellationToken.None);
+                            // Trigger JobAssigned event
+                            JobAssigned?.Invoke(this, new PrintJobEventArgs(job, printer.Name));
+
+                            // Simulate slight delay before assigning the next job
+                            await Task.Delay(100, CancellationToken.None);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logManager.LogError(printer.Name, PrinterError.CorruptedFile);
+                        }
+                    }
                 }
                 else
                 {
@@ -75,7 +90,7 @@ namespace PrintingManagementSystem.Core
 
             foreach (var printer in _printers)
             {
-                if (printer.Status == PrinterStatus.Ready && !printer.PrinterQueue.IsEmpty)
+                if (!printer.PrinterQueue.IsEmpty)
                 {
                     processingTasks.Add(Task.Run(() => printer.ProcessJobAsync()));
                 }
@@ -85,6 +100,11 @@ namespace PrintingManagementSystem.Core
 
             // Attempt to assign more jobs if printers become available
             await DispatchJobsAsync();
+            
+        }
+        public List<PrintJob> GetMainQueueState()
+        {
+            return _jobQueue.GetQueueState();
         }
     }
 

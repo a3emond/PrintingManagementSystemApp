@@ -26,7 +26,6 @@ namespace PrintingManagementSystem.UI
                 new PrinterStatusService(_printManager.GetPrinters()),
                 new ErrorRecoveryService(_printManager.GetPrinters(), _logManager));
 
-
             SetupUI();
             RegisterPrinters();
 
@@ -37,7 +36,7 @@ namespace PrintingManagementSystem.UI
         private void SetupUI()
         {
             this.Text = "Printing Management System";
-            this.Width = 760;
+            this.Width = 1360;
             this.Height = 900;
             this.FormClosing += (sender, args) => _simulationControl.Stop();
 
@@ -51,23 +50,26 @@ namespace PrintingManagementSystem.UI
             Controls.Add(stopButton);
 
             // Initialize and add Canvas
-            _canvas = new CanvasControl { Left = 20, Top = 60, Width = 700, Height = 400 };
+            _canvas = new CanvasControl(_printManager) { Left = 20, Top = 60, Width = 1000, Height = 400 };
             _canvas.BackColor = System.Drawing.Color.CornflowerBlue;
             Controls.Add(_canvas);
 
-            
             // Add Log Panel
             var logPanel = new LogPanel(_logManager) { Left = 20, Top = 470, Width = 700, Height = 300 };
             Controls.Add(logPanel);
+
+            // Add Error Log Panel
+            var errorLogPanel = new ErrorLogPanel(_logManager) { Left = 720, Top = 470, Width = 610, Height = 300 };
+            Controls.Add(errorLogPanel);
         }
 
         private void RegisterPrinters()
         {
             var printers = new List<IPrinter>
-            {
-                new LaserPrinter("Laser Printer 1", _logManager),
-                new InkjetPrinter("Inkjet Printer 1", _logManager)
-            };
+                {
+                    new LaserPrinter("Laser Printer 1", _logManager),
+                    new InkjetPrinter("Inkjet Printer 1", _logManager)
+                };
 
             foreach (var printer in printers)
             {

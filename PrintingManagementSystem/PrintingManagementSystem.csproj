@@ -60,6 +60,9 @@
     <Compile Include="UI\CanvasControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="UI\ErrorLogPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\LogPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -76,14 +79,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ErrorRecoveryService.cs" />
     <Compile Include="Services\PrinterStatusService.cs" />
-    <Compile Include="Services\PrintJobDispatcher.cs" />
-    <Compile Include="Simulation\JobGenerationService.cs" />
     <Compile Include="Simulation\SimulationControl.cs" />
     <Compile Include="UI\PrinterInfoPanel.cs">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="UI\QueueDisplayControl.cs">
-      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Utils\TimerService.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

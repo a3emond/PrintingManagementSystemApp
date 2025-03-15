@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
+using PrintingManagementSystem.Core;
 
 namespace PrintingManagementSystem.UI
 {
@@ -12,12 +14,14 @@ namespace PrintingManagementSystem.UI
         private readonly List<MovingJob> _movingJobs;
         private readonly Timer _animationTimer;
         private readonly Random _random;
+        private readonly PrintManager _printManager;
 
-        public CanvasControl()
+        public CanvasControl(PrintManager printManager)
         {
             _printers = new List<IPrinter>();
             _movingJobs = new List<MovingJob>();
             _random = new Random();
+            _printManager = printManager;
 
             this.DoubleBuffered = true;
             this.Paint += Canvas_Paint;
@@ -51,7 +55,7 @@ namespace PrintingManagementSystem.UI
                 var job = _movingJobs[i];
 
                 // Move job towards target in small steps
-                int step = 5;
+                int step = 10;
                 int dx = Math.Sign(job.Target.X - job.Position.X) * Math.Min(step, Math.Abs(job.Target.X - job.Position.X));
                 int dy = Math.Sign(job.Target.Y - job.Position.Y) * Math.Min(step, Math.Abs(job.Target.Y - job.Position.Y));
 
@@ -85,6 +89,46 @@ namespace PrintingManagementSystem.UI
                 g.DrawString(job.Job.DocumentName, DefaultFont, Brushes.White, job.Position);
             }
 
+            // Draw queue states
+            DrawQueueStates(g);
+        }
+
+        private void DrawQueueStates(Graphics g)
+        {
+            int mainQueueXOffset = 50;
+            int mainQueueYOffset = 50;
+
+            // Draw main queue
+            var mainQueue = GetMainQueue();
+            g.DrawString("Main Queue:", DefaultFont, Brushes.Black, mainQueueXOffset, mainQueueYOffset);
+            mainQueueYOffset += 20;
+            if (mainQueue.Any())
+            {
+                foreach (var job in mainQueue)
+                {
+                    g.DrawString($"{job.DocumentName} (Priority: {job.Priority})", DefaultFont, Brushes.Black, mainQueueXOffset, mainQueueYOffset);
+                    mainQueueYOffset += 20;
+                }
+            }
+
+            // Draw printer queues
+            int printerYOffset = 50;
+            foreach (var printer in _printers)
+            {
+                int printerQueueXOffset = 700; 
+                var queueState = printer.PrinterQueue.GetQueueState();
+                g.DrawString($"Queue for {printer.Name}:", DefaultFont, Brushes.Black, printerQueueXOffset, printerYOffset);
+                printerYOffset += 20;
+                if (queueState.Any())
+                {
+                    foreach (var job in queueState)
+                    {
+                        g.DrawString($"{job.DocumentName} (Priority: {job.Priority})", DefaultFont, Brushes.Black, printerQueueXOffset, printerYOffset);
+                        printerYOffset += 20;
+                    }
+                }
+                printerYOffset += 20; // Add extra space between printers
+            }
         }
 
         private void DrawPrinter(Graphics g, IPrinter printer, Point location)
@@ -122,12 +166,15 @@ namespace PrintingManagementSystem.UI
             }
         }
 
-
-
         private Point GetPrinterLocation(IPrinter printer)
         {
             int index = _printers.IndexOf(printer);
             return new Point(500, 50 + (index * 100));
+        }
+
+        private List<PrintJob> GetMainQueue()
+        {
+            return _printManager.GetMainQueueState();
         }
     }
 

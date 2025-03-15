@@ -10,7 +10,8 @@ namespace PrintingManagementSystem.Models
         public bool IsColor { get; }
         public JobPriority Priority { get; }
         public DateTime CreatedAt { get; }
-        public int EstimatedTime { get; } // Time in milliseconds
+        public int EstimatedTime { get; }
+        // Time in milliseconds
 
         public PrintJob(string documentName, int pages, string paperSize, bool isColor, JobPriority priority)
         {
@@ -25,20 +26,28 @@ namespace PrintingManagementSystem.Models
 
         private int CalculateEstimatedTime()
         {
-            int baseTime = Pages * 1000; // 1 second per page
-            if (IsColor) baseTime += 500 * Pages; // Adds 0.5 sec per page if color
-            return baseTime;
+            // Calculate estimated time based on pages and whether the job is color or not
+            return Pages * (IsColor ? 200 : 100);
         }
 
         public int CompareTo(PrintJob other)
         {
             if (other == null) return 1;
-            return other.Priority.CompareTo(this.Priority); // Higher priority jobs first
+
+            // Higher priority jobs should come first
+            int priorityComparison = other.Priority.CompareTo(Priority);
+            if (priorityComparison != 0)
+            {
+                return priorityComparison;
+            }
+
+            // If priorities are the same, compare by creation time (earlier jobs first)
+            return CreatedAt.CompareTo(other.CreatedAt);
         }
 
         public override string ToString()
         {
-            return $"[{Priority}] {DocumentName} - {Pages} pages ({(IsColor ? "Color" : "B&W")} - {EstimatedTime} seconds)";
+            return $"{DocumentName} (Priority: {Priority})";
         }
     }
 }
